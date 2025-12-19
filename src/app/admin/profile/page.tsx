@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useSession } from "next-auth/react";
 import { Button } from "../../../components/ui/Button";
+import { Icons } from "@/ui/icons";
 import { Input } from "../../../components/ui/Input";
 import { useToast } from "../../../components/ui/useToast";
 import { Toast } from "../../../components/ui/Toast";
@@ -50,7 +51,10 @@ export default function ProfilePage() {
           value={password}
           onChange={e => setPassword(e.target.value)}
         />
-        <Button type="submit" disabled={loading}>{loading ? "Saving..." : "Save"}</Button>
+        <Button type="submit" disabled={loading} className="flex items-center gap-1">
+          <Icons.edit className="w-4 h-4" aria-hidden="true" />
+          {loading ? "Saving..." : "Save"}
+        </Button>
       </form>
       <Toast toasts={toasts} />
     </div>

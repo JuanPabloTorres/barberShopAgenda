@@ -1,12 +1,15 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { DataTable } from "../../../components/ui/DataTable";
-import { Button } from "../../../components/ui/Button";
-import { Modal } from "../../../components/ui/Modal";
-import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
-import { Input } from "../../../components/ui/Input";
-import { useToast } from "../../../components/ui/useToast";
-import { Toast } from "../../../components/ui/Toast";
+import { DataTable } from "@/ui/DataTable";
+import { Button } from "@/ui/Button";
+import { Icons } from "@/ui/icons";
+import { Modal } from "@/ui/Modal";
+import { ConfirmDialog } from "@/ui/ConfirmDialog";
+import { Input } from "@/ui/Input";
+import { useToast } from "@/ui/useToast";
+import { Toast } from "@/ui/Toast";
+import { PageHeader } from "@/ui/PageHeader";
+import { FilterBar } from "@/ui/FilterBar";
 
 export default function BarbersPage() {
   const [barbers, setBarbers] = useState<any[]>([]);
@@ -15,6 +18,7 @@ export default function BarbersPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedBarber, setSelectedBarber] = useState<any>(null);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [searchTerm, setSearchTerm] = useState("");
   const { toasts, showToast } = useToast();
 
   function fetchBarbers() {
@@ -90,17 +94,27 @@ export default function BarbersPage() {
     { key: "name", label: "Name" },
     { key: "email", label: "Email" },
     { key: "isActive", label: "Active" },
-    { key: "actions", label: "Actions" },
+    { key: "actions", label: "Actions", className: "text-right" },
   ];
 
-  const data = barbers.map((b: any) => ({
-    ...b,
-    isActive: b.isActive ? "Yes" : "No",
+  const filteredBarbers = barbers.filter((barber: any) => {
+    if (!searchTerm) return true;
+    const searchValue = searchTerm.toLowerCase();
+    return `${barber.name} ${barber.email}`.toLowerCase().includes(searchValue);
+  });
+
+  const data = filteredBarbers.map((barber: any) => ({
+    ...barber,
+    isActive: barber.isActive ? "Yes" : "No",
     actions: (
-      <div className="flex gap-2">
-        <Button onClick={() => openEdit(b)} className="bg-amber-500 hover:bg-amber-600">Edit</Button>
-        {b.isActive === "Yes" && (
-          <Button onClick={() => openDisable(b)} className="bg-red-500 hover:bg-red-600">Disable</Button>
+      <div className="flex justify-end gap-2">
+        <Button onClick={() => openEdit(barber)} className="bg-brick-700 hover:bg-brick-800 flex items-center gap-1">
+          <Icons.edit className="w-4 h-4" aria-hidden="true" /> Edit
+        </Button>
+        {barber.isActive && (
+          <Button onClick={() => openDisable(barber)} className="bg-chrome-600 hover:bg-chrome-700 flex items-center gap-1">
+            <Icons.delete className="w-4 h-4" aria-hidden="true" /> Disable
+          </Button>
         )}
       </div>
     ),
@@ -108,10 +122,27 @@ export default function BarbersPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Barbers</h1>
-      <Button onClick={openCreate} className="mb-4">Create Barber</Button>
-      <DataTable columns={columns} data={data} />
-      <Modal open={showModal} onClose={() => setShowModal(false)}>
+      <PageHeader
+        title="Barbers"
+        subtitle="Manage barbers, access levels, and active status."
+        actions={
+          <Button onClick={openCreate} className="bg-brick-700 hover:bg-brick-800 flex items-center gap-1">
+            <Icons.add className="w-4 h-4" aria-hidden="true" /> Create Barber
+          </Button>
+        }
+      />
+      <FilterBar
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search barber or email"
+        onClear={() => setSearchTerm("")}
+      />
+      <DataTable columns={columns} data={data} loading={loading} emptyMessage="No barbers found." />
+      <Modal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        title={selectedBarber ? "Edit Barber" : "Create Barber"}
+      >
         <form onSubmit={handleSave} className="space-y-4">
           <Input
             placeholder="Name"
@@ -136,7 +167,9 @@ export default function BarbersPage() {
               required
             />
           )}
-          <Button type="submit" disabled={loading}>{loading ? "Saving..." : "Save"}</Button>
+          <Button type="submit" disabled={loading} className="bg-brick-700 hover:bg-brick-800">
+            {loading ? "Saving..." : "Save"}
+          </Button>
         </form>
       </Modal>
       <ConfirmDialog

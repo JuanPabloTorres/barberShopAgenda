@@ -1,5 +1,5 @@
-import { prisma } from "../../../../../lib/prisma";
-import { requireAdmin } from "../../../../../lib/serverAuth";
+import { prisma } from "@lib/prisma/client";
+import { requireAdmin } from "@lib/serverAuth";
 import { NextResponse } from "next/server";
 
 export async function PUT(request: Request, { params }: { params: { id: string } }) {

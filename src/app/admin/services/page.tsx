@@ -1,12 +1,15 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { DataTable } from "../../../components/ui/DataTable";
-import { Button } from "../../../components/ui/Button";
-import { Modal } from "../../../components/ui/Modal";
-import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
-import { Input } from "../../../components/ui/Input";
-import { useToast } from "../../../components/ui/useToast";
-import { Toast } from "../../../components/ui/Toast";
+import { DataTable } from "@/ui/DataTable";
+import { Button } from "@/ui/Button";
+import { Icons } from "@/ui/icons";
+import { Modal } from "@/ui/Modal";
+import { ConfirmDialog } from "@/ui/ConfirmDialog";
+import { Input } from "@/ui/Input";
+import { useToast } from "@/ui/useToast";
+import { Toast } from "@/ui/Toast";
+import { PageHeader } from "@/ui/PageHeader";
+import { FilterBar } from "@/ui/FilterBar";
 
 export default function ServicesPage() {
   const [services, setServices] = useState<any[]>([]);
@@ -15,6 +18,7 @@ export default function ServicesPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedService, setSelectedService] = useState<any>(null);
   const [form, setForm] = useState({ name: "", price: "", durationMin: "" });
+  const [searchTerm, setSearchTerm] = useState("");
   const { toasts, showToast } = useToast();
 
   function fetchServices() {
@@ -94,18 +98,27 @@ export default function ServicesPage() {
     { key: "price", label: "Price" },
     { key: "durationMin", label: "Duration (min)" },
     { key: "isActive", label: "Active" },
-    { key: "actions", label: "Actions" },
+    { key: "actions", label: "Actions", className: "text-right" },
   ];
 
-  const data = services.map((s: any) => ({
-    ...s,
-    price: `$${(s.price/100).toFixed(2)}`,
-    isActive: s.isActive ? "Yes" : "No",
+  const filteredServices = services.filter((service: any) => {
+    if (!searchTerm) return true;
+    return service.name.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
+  const data = filteredServices.map((service: any) => ({
+    ...service,
+    price: `$${(service.price/100).toFixed(2)}`,
+    isActive: service.isActive ? "Yes" : "No",
     actions: (
-      <div className="flex gap-2">
-        <Button onClick={() => openEdit(s)} className="bg-amber-500 hover:bg-amber-600">Edit</Button>
-        {s.isActive === true && (
-          <Button onClick={() => openDisable(s)} className="bg-red-500 hover:bg-red-600">Disable</Button>
+      <div className="flex justify-end gap-2">
+        <Button onClick={() => openEdit(service)} className="bg-brick-700 hover:bg-brick-800 flex items-center gap-1">
+          <Icons.edit className="w-4 h-4" aria-hidden="true" /> Edit
+        </Button>
+        {service.isActive === true && (
+          <Button onClick={() => openDisable(service)} className="bg-chrome-600 hover:bg-chrome-700 flex items-center gap-1">
+            <Icons.delete className="w-4 h-4" aria-hidden="true" /> Disable
+          </Button>
         )}
       </div>
     ),
@@ -113,10 +126,27 @@ export default function ServicesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Services</h1>
-      <Button onClick={openCreate} className="mb-4">Create Service</Button>
-      <DataTable columns={columns} data={data} />
-      <Modal open={showModal} onClose={() => setShowModal(false)}>
+      <PageHeader
+        title="Services"
+        subtitle="Manage services, pricing, and durations."
+        actions={
+          <Button onClick={openCreate} className="bg-brick-700 hover:bg-brick-800 flex items-center gap-1">
+            <Icons.add className="w-4 h-4" aria-hidden="true" /> Create Service
+          </Button>
+        }
+      />
+      <FilterBar
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search services"
+        onClear={() => setSearchTerm("")}
+      />
+      <DataTable columns={columns} data={data} loading={loading} emptyMessage="No services found." />
+      <Modal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        title={selectedService ? "Edit Service" : "Create Service"}
+      >
         <form onSubmit={handleSave} className="space-y-4">
           <Input
             placeholder="Name"
@@ -141,7 +171,9 @@ export default function ServicesPage() {
             onChange={e => setForm(f => ({ ...f, durationMin: e.target.value }))}
             required
           />
-          <Button type="submit" disabled={loading}>{loading ? "Saving..." : "Save"}</Button>
+          <Button type="submit" disabled={loading} className="bg-brick-700 hover:bg-brick-800">
+            {loading ? "Saving..." : "Save"}
+          </Button>
         </form>
       </Modal>
       <ConfirmDialog

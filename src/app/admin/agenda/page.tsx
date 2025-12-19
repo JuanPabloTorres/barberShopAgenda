@@ -1,19 +1,24 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { Select } from "../../../components/ui/Select";
-import { Button } from "../../../components/ui/Button";
-import { Loading } from "../../../components/ui/Loading";
-import { useToast } from "../../../components/ui/useToast";
-import { Toast } from "../../../components/ui/Toast";
+import { Select } from "@/ui/Select";
+import { Button } from "@/ui/Button";
+import { Loading } from "@/ui/Loading";
+import { useToast } from "@/ui/useToast";
+import { Toast } from "@/ui/Toast";
+import { PageHeader } from "@/ui/PageHeader";
+import { FilterBar } from "@/ui/FilterBar";
+import { DataTable } from "@/ui/DataTable";
 
 export default function AgendaPage() {
   const { data: session } = useSession();
-  const [date, setDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const todayDate = new Date().toISOString().split("T")[0];
+  const [date, setDate] = useState(() => todayDate);
   const [barbers, setBarbers] = useState<any[]>([]);
   const [barberId, setBarberId] = useState("");
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const { toasts, showToast } = useToast();
 
   const isAdmin = session?.role === "ADMIN";
@@ -51,45 +56,92 @@ export default function AgendaPage() {
     }
   }
 
+  const filteredAppointments = appointments.filter((appointment) => {
+    if (!searchTerm) return true;
+    const searchValue = searchTerm.toLowerCase();
+    const combinedFields = `${appointment.clientName} ${appointment.clientEmail} ${appointment.clientPhone}`.toLowerCase();
+    return combinedFields.includes(searchValue);
+  });
+
+  const columns = [
+    { key: "client", label: "Client" },
+    { key: "contact", label: "Contact" },
+    { key: "time", label: "Time" },
+    { key: "service", label: "Service" },
+    { key: "status", label: "Status" },
+    { key: "actions", label: "Actions", className: "text-right" },
+  ];
+
+  const tableData = filteredAppointments.map((appointment: any) => ({
+    client: (
+      <div>
+        <div className="font-semibold text-slatewood-900">{appointment.clientName}</div>
+        <div className="text-xs text-slatewood-500">#{appointment.id.slice(0, 6)}</div>
+      </div>
+    ),
+    contact: (
+      <div className="text-sm text-slatewood-700">
+        <div>{appointment.clientEmail}</div>
+        <div className="text-xs text-slatewood-500">{appointment.clientPhone}</div>
+      </div>
+    ),
+    time: (
+      <div className="text-sm text-slatewood-700">
+        {new Date(appointment.startAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+      </div>
+    ),
+    service: <div className="text-sm text-slatewood-700">{appointment.serviceId}</div>,
+    status: <div className="text-sm text-slatewood-700">{appointment.status}</div>,
+    actions: (
+      <div className="flex justify-end gap-2">
+        {appointment.status === "BOOKED" && (
+          <>
+            <Button onClick={() => updateStatus(appointment.id, "DONE")} className="bg-brick-700 hover:bg-brick-800">
+              Mark Done
+            </Button>
+            <Button onClick={() => updateStatus(appointment.id, "CANCELLED")} className="bg-chrome-600 hover:bg-chrome-700">
+              Cancel
+            </Button>
+          </>
+        )}
+      </div>
+    ),
+  }));
+
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Agenda</h1>
-      <div className="flex gap-2 mb-4 items-end">
-        <label className="block">
-          <span className="text-sm font-medium">Date</span>
-          <input type="date" value={date} onChange={e => setDate(e.target.value)} className="rounded border px-2 py-1 ml-2" />
-        </label>
+      <PageHeader
+        title="Agenda"
+        subtitle="Review upcoming appointments and update statuses."
+      />
+      <FilterBar
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search client, email, phone"
+        dateValue={date}
+        onDateChange={setDate}
+        onClear={() => {
+          setSearchTerm("");
+          setDate(todayDate);
+          setBarberId("");
+        }}
+      >
         {isAdmin && (
           <Select value={barberId} onChange={e => setBarberId(e.target.value)}>
             <option value="">All Barbers</option>
-            {barbers.map((b: any) => (
-              <option key={b.id} value={b.id}>{b.name}</option>
+            {barbers.map((barber: any) => (
+              <option key={barber.id} value={barber.id}>{barber.name}</option>
             ))}
           </Select>
         )}
-      </div>
+      </FilterBar>
       {loading && <Loading />}
-      <div className="space-y-4">
-        {appointments.length === 0 && !loading && (
-          <div className="text-gray-500">No appointments found.</div>
-        )}
-        {appointments.map((a: any) => (
-          <div key={a.id} className="bg-white rounded shadow p-4 flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-              <div className="font-semibold text-lg">{a.clientName}</div>
-              <div className="text-gray-600 text-sm">{a.clientEmail} | {a.clientPhone}</div>
-              <div className="text-gray-700 mt-1">{new Date(a.startAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - {a.status}</div>
-              <div className="text-gray-700 text-sm">Service: {a.serviceId}</div>
-            </div>
-            {a.status === "BOOKED" && (
-              <div className="flex gap-2 mt-2 md:mt-0">
-                <Button onClick={() => updateStatus(a.id, "DONE")}>Mark Done</Button>
-                <Button onClick={() => updateStatus(a.id, "CANCELLED")}>Cancel</Button>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+      <DataTable
+        columns={columns}
+        data={tableData}
+        loading={loading}
+        emptyMessage="No appointments found for this date."
+      />
       <Toast toasts={toasts} />
     </div>
   );
