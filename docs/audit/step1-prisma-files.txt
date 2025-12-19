@@ -1,0 +1,36 @@
+// prisma.config.ts
+// Prisma 6.x does not require this config file. Safe to remove or leave empty.
+
+// schema.prisma (top)
+generator client {
+	provider = "prisma-client-js"
+}
+
+datasource db {
+		provider = "sqlite"
+		url = env("DATABASE_URL")
+}
+# Step 1: Prisma Configuration Audit
+
+## prisma.config.ts
+
+```
+// Prisma 6.x does not require this config file. Safe to remove or leave empty.
+```
+
+## schema.prisma (relevant sections)
+
+```
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+	provider = "sqlite"
+	url = env("DATABASE_URL")
+}
+```
+
+- One generator (client)
+- One datasource (db) with provider and url
+- url uses env(DATABASE_URL)

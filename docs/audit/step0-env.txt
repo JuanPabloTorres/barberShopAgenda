@@ -1,0 +1,64 @@
+
+Path
+----
+C:\Users\juanp\source\repos\Barber-Agenda
+
+
+    Directory: C:\Users\juanp\source\repos\Barber-Agenda
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----          12/19/2025  8:57 AM                .github
+d----          12/19/2025 10:25 AM                .next
+d----          12/19/2025 11:33 AM                docs
+d----          12/19/2025 11:22 AM                node_modules
+d----          12/19/2025 11:11 AM                prisma
+d----          12/19/2025 10:07 AM                src
+-a---          12/19/2025 10:50 AM             28 .env
+-a---          12/19/2025  9:53 AM            240 .env.example
+-a---          12/19/2025 10:58 AM         131072 dev.db
+-a---          12/19/2025  9:12 AM            574 middleware.ts
+-a---          12/19/2025 11:12 AM            257 next-env.d.ts
+-a---          12/19/2025 11:22 AM         130617 package-lock.json
+-a---          12/19/2025 11:22 AM            892 package.json
+-a---          12/19/2025  9:11 AM             89 postcss.config.js
+-a---          12/19/2025 11:10 AM             81 prisma.config.ts
+-a---          12/19/2025  9:11 AM            214 tailwind.config.js
+-a---          12/19/2025 11:30 AM            716 tsconfig.json
+
+v20.19.0
+10.8.2
+Prisma schema loaded from prisma\schema.prisma
+prisma                  : 6.19.1
+@prisma/client          : 6.19.1
+Computed binaryTarget   : windows
+Operating System        : win32
+Architecture            : x64
+Node.js                 : v20.19.0
+TypeScript              : 5.9.3
+Query Engine (Node-API) : libquery-engine c2990dca591cba766e3b7ef5d9e8a84796e47ab7 (at node_modules\prisma\node_modules\@prisma\engines\query_engine-windows.dll.node)
+PSL                     : @prisma/prisma-schema-wasm 7.1.1-3.c2990dca591cba766e3b7ef5d9e8a84796e47ab7
+Schema Engine           : schema-engine-cli c2990dca591cba766e3b7ef5d9e8a84796e47ab7 (at node_modules\prisma\node_modules\@prisma\engines\schema-engine-windows.exe)
+Default Engines Hash    : c2990dca591cba766e3b7ef5d9e8a84796e47ab7
+Studio                  : 0.511.0
+
+    Directory: C:\Users\juanp\source\repos\Barber-Agenda
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---          12/19/2025 10:50 AM             28 .env
+
+
+    Directory: C:\Users\juanp\source\repos\Barber-Agenda\prisma
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---          12/19/2025 11:10 AM           3554 schema.prisma
+
+
+    Directory: C:\Users\juanp\source\repos\Barber-Agenda
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---          12/19/2025 11:10 AM             81 prisma.config.ts
+
